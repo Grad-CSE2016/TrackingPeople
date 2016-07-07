@@ -1,20 +1,13 @@
 import cv2
 import numpy as np
 from sort import *
-
+import glob
+import time
 
 
 class TrackingPeople:
         def __init__(self):
             super(TrackingPeople, self).__init__()
-            mog_er_w = 7
-            mog_er_h = 7
-            mog_di_w = 16
-            mog_di_h = 26
-            cv2.ocl.setUseOpenCL(False)
-            self.bgs_mog = cv2.createBackgroundSubtractorMOG2()
-            self.for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(mog_er_w, mog_er_h))
-            self.for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(mog_di_w, mog_di_h))
 
             self.mot_tracker = Sort(15)
             self.hog = cv2.HOGDescriptor()
@@ -43,3 +36,41 @@ class TrackingPeople:
                 return(track_bbs_ids,pick,len(pick))
             else:
                 return(np.array([]),np.array([]),0)
+
+if __name__ == '__main__':
+    # """# Run a demo.# """
+    cv2.namedWindow("tracking")
+    camera = cv2.VideoCapture("/home/ahmed/Desktop/dataset/6.avi")
+
+    RedFram=20
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    Track=TrackingPeople()
+    total_time = 0.0
+    total_frames = 0
+    colours = np.random.rand(32,3)
+    while camera.isOpened():
+        ok, image=camera.read()
+
+        print(total_frames)
+        print(total_time)
+        total_frames=total_frames+1
+        start_time = time.time()
+
+        trackers,detections,peopleCount=Track.get_frame(image)
+        for(tracker)in trackers:
+            x1,y1,x2,y2,n=int(tracker[0]),int(tracker[1]),int(tracker[2]),int(tracker[3]),int(tracker[4]),;
+            color=colours[n%32,:]
+            (R,G,B)=int(color[0]*255),int(color[1]*255),int(color[2]*255)
+            cv2.putText(image,str(n),(x1,y1), font, 1, (B,G,R), 2, cv2.LINE_AA)
+            cv2.rectangle(image, (x1+RedFram,y1+RedFram), (x2-RedFram, y2-RedFram), (B,G,R), 2)
+        cv2.putText(image,str(peopleCount),(0,50), font, 2, (0,255,0), 2, cv2.LINE_AA)
+        cv2.imshow("tracking", image)
+
+        cycle_time = time.time() - start_time
+        total_time += cycle_time
+
+        k = cv2.waitKey(1) & 0xff
+        if k == 27 : break # esc pressed
+    camera.release()
+    out.release()
+    cv2.destroyAllWindows()
