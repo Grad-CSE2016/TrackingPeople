@@ -205,13 +205,11 @@ class Sort(object):
     for t in reversed(to_del):
       self.trackers.pop(t)
     matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks)
-
     #update matched trackers with assigned detections
     for t,trk in enumerate(self.trackers):
-      if(t not in unmatched_trks):
-        d = matched[np.where(matched[:,1]==t)[0],0]
-        trk.update(dets[d,:][0])
-
+        if(t not in unmatched_trks):
+            d = matched[np.where(matched[:,1]==t)[0],0]
+            trk.update(dets[d,:][0])
     #create and initialise new trackers for unmatched detections
     for i in unmatched_dets:
         trk = KalmanBoxTracker(dets[i,:])
@@ -219,8 +217,9 @@ class Sort(object):
     i = len(self.trackers)
     for trk in reversed(self.trackers):
         d = trk.get_state()[0]
-        if((trk.time_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
-          ret.append(np.concatenate((d,[trk.id+1])).reshape(1,-1)) # +1 as MOT benchmark requires positive
+        # if((trk.time_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
+        if((trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
+            ret.append(np.concatenate((d,[trk.id+1])).reshape(1,-1)) # +1 as MOT benchmark requires positive
         i -= 1
         #remove dead tracklet
         if(trk.time_since_update > self.max_age):

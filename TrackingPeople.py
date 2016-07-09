@@ -9,10 +9,11 @@ class TrackingPeople:
         def __init__(self):
             super(TrackingPeople, self).__init__()
 
-            self.mot_tracker = Sort(15)
+            self.mot_tracker = Sort(12,3)
             self.hog = cv2.HOGDescriptor()
             self.hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-
+            self.peopleCount=0
+            self.lastCounted=0
         def get_frame(self,image):
             # grey_image = self.bgs_mog.apply(image)
             # thresh, im_bw = cv2.threshold(grey_image, 225, 255, cv2.THRESH_BINARY)
@@ -33,7 +34,11 @@ class TrackingPeople:
                 pick = np.array([[x,y,x+w,y+h] for (x,y,w,h) in pick])
                 detections=pick
                 track_bbs_ids = self.mot_tracker.update(detections)
-                return(track_bbs_ids,pick,len(pick))
+                for(trk)in track_bbs_ids:
+                    if(trk[4]>self.lastCounted):
+                        self.lastCounted=trk[4]
+                        self.peopleCount=self.peopleCount+1
+                return(track_bbs_ids,pick,self.peopleCount)
             else:
                 return(np.array([]),np.array([]),0)
 
