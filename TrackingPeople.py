@@ -9,7 +9,7 @@ class TrackingPeople:
         def __init__(self):
             super(TrackingPeople, self).__init__()
 
-            self.mot_tracker = Sort(15,2)
+            self.mot_tracker = Sort(20,3)
             self.hog = cv2.HOGDescriptor()
             self.hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
             self.peopleCount=0
